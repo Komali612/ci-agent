@@ -1,0 +1,74 @@
+# Reusable workflow: the whole agent pipeline as a callable job.
+# Service repos invoke it with `uses: <owner>/ci-agent/.github/workflows/agent.yml@main`.
+# The two agents run as two separate, visible steps with classification.json
+# as the explicit handoff between them.
+name: CI Agent Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      sonar-project-key:
+        description: SonarCloud project key of the calling repo
+        required: true
+        type: string
+      sonar-organization:
+        description: SonarCloud organization key
+        required: true
+        type: string
+      phases:
+        description: Comma-separated subset of build,test,sonar,push
+        required: false
+        type: string
+        default: build,test,sonar,push
+      agent-ref:
+        description: Git ref of ci-agent to run
+        required: false
+        type: string
+        default: main
+    secrets:
+      SONAR_TOKEN:
+        required: true
+      ANTHROPIC_API_KEY:
+        required: false
+
+jobs:
+  agent-pipeline:
+    name: agent
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out service repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # SonarCloud needs full history for new-code detection
+
+      - name: Check out ci-agent
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/ci-agent
+          ref: ${{ inputs.agent-ref }}
+          path: .ci-agent
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install agents
+        run: pip install --quiet ./.ci-agent/agents
+
+      - name: Classification Agent
+        id: classify
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python -m classification_agent --output classification.json
+
+      - name: CI Agent
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_ORGANIZATION: ${{ inputs.sonar-organization }}
+          SONAR_PROJECT_KEY: ${{ inputs.sonar-project-key }}
+          CI_AGENT_ROOT: ${{ github.workspace }}/.ci-agent
+        run: python -m ci_agent --classification classification.json --phases "${{ inputs.phases }}"
