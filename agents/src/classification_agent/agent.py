@@ -41,7 +41,7 @@ def classify(repo_root: Path) -> ClassificationResult:
 
     if os.environ.get("ANTHROPIC_API_KEY"):
         try:
-            llm = _classify_with_llm(tree, manifests)
+            llm, usage = _classify_with_llm(tree, manifests)
             if llm.confidence >= CONFIDENCE_THRESHOLD:
                 return ClassificationResult(
                     language=llm.language,
@@ -49,6 +49,8 @@ def classify(repo_root: Path) -> ClassificationResult:
                     confidence=llm.confidence,
                     method="llm",
                     evidence=llm.evidence,
+                    llm_input_tokens=usage.get("input_tokens"),
+                    llm_output_tokens=usage.get("output_tokens"),
                 )
             print(
                 f"[classification-agent] LLM confidence {llm.confidence:.2f} is below "
@@ -102,7 +104,9 @@ def _file_tree(repo_root: Path) -> list[str]:
     return entries[:MAX_TREE_ENTRIES]
 
 
-def _classify_with_llm(tree: list[str], manifests: dict[str, str]) -> LLMClassification:
+def _classify_with_llm(
+    tree: list[str], manifests: dict[str, str]
+) -> tuple[LLMClassification, dict]:
     import anthropic
 
     client = anthropic.Anthropic().with_options(timeout=60.0, max_retries=1)
@@ -116,7 +120,11 @@ def _classify_with_llm(tree: list[str], manifests: dict[str, str]) -> LLMClassif
     parsed = response.parsed_output
     if parsed is None:
         raise ClassificationError("LLM returned no parseable classification")
-    return parsed
+    usage = {
+        "input_tokens": response.usage.input_tokens,
+        "output_tokens": response.usage.output_tokens,
+    }
+    return parsed, usage
 
 
 def _classify_with_heuristic(tree: list[str]) -> ClassificationResult:

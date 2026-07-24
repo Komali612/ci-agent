@@ -1,0 +1,55 @@
+# Platform-owner observability: pulls each consumer run's telemetry artifact
+# via the Actions API and publishes the aggregate to the gh-pages dashboard.
+# Pull-based because GITHUB_TOKEN is repo-scoped -- consumer runs can't write
+# here, but this repo's token can read public consumer repos.
+name: telemetry-collector
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out main (collector code)
+        uses: actions/checkout@v4
+
+      - name: Check out gh-pages (dashboard + data)
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: site
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Collect telemetry
+        env:
+          # TELEMETRY_TOKEN (fine-grained PAT) only needed if consumer repos
+          # ever go private; for public repos the run token can read them.
+          GH_TOKEN: ${{ secrets.TELEMETRY_TOKEN || github.token }}
+        run: python telemetry/collect.py --site site
+
+      - name: Publish
+        run: |
+          # Dashboard source is versioned on main; gh-pages holds the published copy + data.
+          cp telemetry/site/index.html site/index.html
+          touch site/.nojekyll
+          cd site
+          git config user.name "ci-agent-telemetry[bot]"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no new telemetry"
+          else
+            git commit -m "telemetry: refresh data.json"
+            git push
+          fi

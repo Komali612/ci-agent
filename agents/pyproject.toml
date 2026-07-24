@@ -16,4 +16,4 @@ dependencies = [
 [tool.setuptools]
 package-dir = { "" = "src" }
 packages = ["classification_agent", "ci_agent", "ci_agent.phases"]
-py-modules = ["contracts", "report"]
+py-modules = ["contracts", "report", "telemetry"]

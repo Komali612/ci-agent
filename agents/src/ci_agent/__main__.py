@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 import report
+import telemetry
 from contracts import ClassificationResult
 
 from .agent import run_pipeline
@@ -44,6 +45,10 @@ def main() -> int:
 
     pipeline = run_pipeline(classification, Path(args.repo_root).resolve(), selected)
     report.publish(pipeline)
+    try:
+        telemetry.write(pipeline, Path("telemetry.json"))
+    except Exception as exc:
+        print(f"[ci-agent] warning: telemetry write failed ({exc})")
 
     print()
     for phase in pipeline.phases:

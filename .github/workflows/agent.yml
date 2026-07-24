@@ -79,4 +79,16 @@ jobs:
           SONAR_ORGANIZATION: ${{ inputs.sonar-organization }}
           SONAR_PROJECT_KEY: ${{ inputs.sonar-project-key }}
           CI_AGENT_ROOT: ${{ github.workspace }}/.ci-agent
+          CI_AGENT_REF: ${{ inputs.agent-ref }}
         run: python -m ci_agent --classification classification.json --phases "${{ inputs.phases }}"
+
+      # Observability: every run publishes its structured telemetry record.
+      # ci-agent's collector workflow pulls these across consumer repos.
+      - name: Upload telemetry artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-agent-telemetry
+          path: telemetry.json
+          if-no-files-found: ignore
+          retention-days: 90

@@ -44,6 +44,9 @@ class ClassificationResult(BaseModel):
     confidence: float
     method: str  # "llm" or "heuristic-fallback"
     evidence: list[str] = []
+    # Telemetry metadata (None on the heuristic path): what the LLM call cost.
+    llm_input_tokens: int | None = None
+    llm_output_tokens: int | None = None
 
 
 class PhaseStatus(str, enum.Enum):
