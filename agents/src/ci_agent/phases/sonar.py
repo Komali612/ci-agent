@@ -55,7 +55,11 @@ def _commands(ctx: PhaseContext, org: str, key: str) -> list[list[str]]:
                 f"-Dsonar.organization={org}",
                 f"-Dsonar.projectKey={key}",
                 "-Dsonar.qualitygate.wait=true",
-                "sonar:sonar",
+                # Fully-qualified goal, not the short "sonar:sonar" prefix: the
+                # pom doesn't declare the plugin, so prefix resolution depends on
+                # fetching plugin-group metadata from Central, which is flaky.
+                # Addressing the coordinates directly skips that lookup.
+                "org.sonarsource.scanner.maven:sonar-maven-plugin:sonar",
             ]
         ]
     # The .NET scanner wraps the build (begin -> build -> test -> end); it
