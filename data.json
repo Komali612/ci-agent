@@ -227,9 +227,619 @@
     ],
     "image_ref": null
    }
+  },
+  {
+   "key": "Komali612/java-service#30110421964#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30110421964,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "workflow_dispatch",
+   "branch": "main",
+   "sha": "17f81246b2604c3ceca69b1577ca43c5ab0118c8",
+   "conclusion": "failure",
+   "created_at": "2026-07-24T16:47:21Z",
+   "run_duration_seconds": 95.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30110421964",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T16:48:52+00:00",
+    "repo": "Komali612/java-service",
+    "run_id": "30110421964",
+    "run_attempt": "1",
+    "event": "workflow_dispatch",
+    "pr": null,
+    "sha": "17f81246b2604c3ceca69b1577ca43c5ab0118c8",
+    "agent_ref": "main",
+    "conclusion": "failure",
+    "classification": {
+     "language": "java",
+     "build_tool": "maven",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1384,
+     "llm_output_tokens": 146
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 16.7,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 9.5,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "failure",
+      "duration_seconds": 37.2,
+      "exit_code": 1
+     },
+     {
+      "name": "push",
+      "status": "skipped",
+      "duration_seconds": 0.0,
+      "exit_code": null
+     }
+    ],
+    "image_ref": null
+   }
+  },
+  {
+   "key": "Komali612/java-service#30110561441#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30110561441,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "workflow_dispatch",
+   "branch": "main",
+   "sha": "17f81246b2604c3ceca69b1577ca43c5ab0118c8",
+   "conclusion": "success",
+   "created_at": "2026-07-24T16:49:20Z",
+   "run_duration_seconds": 153.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30110561441",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T16:51:48+00:00",
+    "repo": "Komali612/java-service",
+    "run_id": "30110561441",
+    "run_attempt": "1",
+    "event": "workflow_dispatch",
+    "pr": null,
+    "sha": "17f81246b2604c3ceca69b1577ca43c5ab0118c8",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "java",
+     "build_tool": "maven",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1384,
+     "llm_output_tokens": 130
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 44.1,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 13.7,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 49.5,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 13.9,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/java-service:manual-17f8124"
+   }
+  },
+  {
+   "key": "Komali612/java-service#30110720591#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30110720591,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "pull_request",
+   "branch": "test-the-agent",
+   "sha": "6b00275c36c8c01de1d6edc6290fefb7d91ed371",
+   "conclusion": "success",
+   "created_at": "2026-07-24T16:51:53Z",
+   "run_duration_seconds": 155.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30110720591",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T16:54:22+00:00",
+    "repo": "Komali612/java-service",
+    "run_id": "30110720591",
+    "run_attempt": "1",
+    "event": "pull_request",
+    "pr": "1",
+    "sha": "6b00275c36c8c01de1d6edc6290fefb7d91ed371",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "java",
+     "build_tool": "maven",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1384,
+     "llm_output_tokens": 138
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 32.7,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 12.2,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 50.1,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 24.0,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/java-service:pr-1-6b00275"
+   }
+  },
+  {
+   "key": "Komali612/dotnet-service#30110864400#1",
+   "repo": "Komali612/dotnet-service",
+   "run_id": 30110864400,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "workflow_dispatch",
+   "branch": "main",
+   "sha": "06a08d48814a9f7bc994af0bd25bd04783b2f4b7",
+   "conclusion": "failure",
+   "created_at": "2026-07-24T16:53:51Z",
+   "run_duration_seconds": 119.0,
+   "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30110864400",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T16:55:46+00:00",
+    "repo": "Komali612/dotnet-service",
+    "run_id": "30110864400",
+    "run_attempt": "1",
+    "event": "workflow_dispatch",
+    "pr": null,
+    "sha": "06a08d48814a9f7bc994af0bd25bd04783b2f4b7",
+    "agent_ref": "main",
+    "conclusion": "failure",
+    "classification": {
+     "language": "dotnet",
+     "build_tool": "dotnet",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1678,
+     "llm_output_tokens": 153
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 32.6,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 14.2,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "failure",
+      "duration_seconds": 36.5,
+      "exit_code": 1
+     },
+     {
+      "name": "push",
+      "status": "skipped",
+      "duration_seconds": 0.0,
+      "exit_code": null
+     }
+    ],
+    "image_ref": null
+   }
+  },
+  {
+   "key": "Komali612/dotnet-service#30111662142#1",
+   "repo": "Komali612/dotnet-service",
+   "run_id": 30111662142,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "pull_request",
+   "branch": "verify-llm-1784912745",
+   "sha": "0a2f61977aa2ec0271afa7595d76fef4208d68b7",
+   "conclusion": "success",
+   "created_at": "2026-07-24T17:05:51Z",
+   "run_duration_seconds": 231.0,
+   "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30111662142",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T17:09:36+00:00",
+    "repo": "Komali612/dotnet-service",
+    "run_id": "30111662142",
+    "run_attempt": "1",
+    "event": "pull_request",
+    "pr": "3",
+    "sha": "0a2f61977aa2ec0271afa7595d76fef4208d68b7",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "dotnet",
+     "build_tool": "dotnet",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1678,
+     "llm_output_tokens": 168
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 67.7,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 30.0,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 45.8,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 41.2,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/dotnet-service:pr-3-0a2f619"
+   }
+  },
+  {
+   "key": "Komali612/dotnet-service#30113185935#1",
+   "repo": "Komali612/dotnet-service",
+   "run_id": 30113185935,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "workflow_dispatch",
+   "branch": "main",
+   "sha": "06a08d48814a9f7bc994af0bd25bd04783b2f4b7",
+   "conclusion": "success",
+   "created_at": "2026-07-24T17:29:24Z",
+   "run_duration_seconds": 186.0,
+   "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30113185935",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T17:32:24+00:00",
+    "repo": "Komali612/dotnet-service",
+    "run_id": "30113185935",
+    "run_attempt": "1",
+    "event": "workflow_dispatch",
+    "pr": null,
+    "sha": "06a08d48814a9f7bc994af0bd25bd04783b2f4b7",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "dotnet",
+     "build_tool": "dotnet",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1678,
+     "llm_output_tokens": 219
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 17.0,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 15.6,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 41.9,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 80.5,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/dotnet-service:manual-06a08d4"
+   }
+  },
+  {
+   "key": "Komali612/java-service#30113596870#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30113596870,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "pull_request",
+   "branch": "test-the-agent",
+   "sha": "d88087651005ed33a6b2b2033f1d7a6aa64adecf",
+   "conclusion": "success",
+   "created_at": "2026-07-24T17:35:29Z",
+   "run_duration_seconds": 145.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30113596870",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T17:37:49+00:00",
+    "repo": "Komali612/java-service",
+    "run_id": "30113596870",
+    "run_attempt": "1",
+    "event": "pull_request",
+    "pr": "1",
+    "sha": "d88087651005ed33a6b2b2033f1d7a6aa64adecf",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "java",
+     "build_tool": "maven",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1384,
+     "llm_output_tokens": 142
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 39.0,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 11.9,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 48.3,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 12.8,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/java-service:pr-1-d880876"
+   }
+  },
+  {
+   "key": "Komali612/java-service#30114151070#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30114151070,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "pull_request",
+   "branch": "test-the-agent",
+   "sha": "821ad1a4c3b89aed846a371af5d34810b68fc91b",
+   "conclusion": "success",
+   "created_at": "2026-07-24T17:43:59Z",
+   "run_duration_seconds": 113.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30114151070",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T17:45:48+00:00",
+    "repo": "Komali612/java-service",
+    "run_id": "30114151070",
+    "run_attempt": "1",
+    "event": "pull_request",
+    "pr": "1",
+    "sha": "821ad1a4c3b89aed846a371af5d34810b68fc91b",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "java",
+     "build_tool": "maven",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1384,
+     "llm_output_tokens": 145
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 29.2,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 11.6,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 37.7,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 12.1,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/java-service:pr-1-821ad1a"
+   }
+  },
+  {
+   "key": "Komali612/dotnet-service#30114585851#1",
+   "repo": "Komali612/dotnet-service",
+   "run_id": 30114585851,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "pull_request",
+   "branch": "verify-llm-1784912745",
+   "sha": "bf50da902134650909b69117987eedd0bc9fba5d",
+   "conclusion": "success",
+   "created_at": "2026-07-24T17:50:35Z",
+   "run_duration_seconds": 130.0,
+   "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30114585851",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T17:52:39+00:00",
+    "repo": "Komali612/dotnet-service",
+    "run_id": "30114585851",
+    "run_attempt": "1",
+    "event": "pull_request",
+    "pr": "3",
+    "sha": "bf50da902134650909b69117987eedd0bc9fba5d",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "dotnet",
+     "build_tool": "dotnet",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1678,
+     "llm_output_tokens": 153
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 17.1,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 13.8,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 45.1,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 25.8,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/dotnet-service:pr-3-bf50da9"
+   }
+  },
+  {
+   "key": "Komali612/dotnet-service#30114888179#1",
+   "repo": "Komali612/dotnet-service",
+   "run_id": 30114888179,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "pull_request",
+   "branch": "verify-llm-1784912745",
+   "sha": "e2c7715b0ac8dd6b266174d43d47ffc39ca16d68",
+   "conclusion": "success",
+   "created_at": "2026-07-24T17:55:14Z",
+   "run_duration_seconds": 134.0,
+   "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30114888179",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-24T17:57:25+00:00",
+    "repo": "Komali612/dotnet-service",
+    "run_id": "30114888179",
+    "run_attempt": "1",
+    "event": "pull_request",
+    "pr": "3",
+    "sha": "e2c7715b0ac8dd6b266174d43d47ffc39ca16d68",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "dotnet",
+     "build_tool": "dotnet",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1678,
+     "llm_output_tokens": 148
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 36.6,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 16.2,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 40.9,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 19.8,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/dotnet-service:pr-3-e2c7715"
+   }
   }
  ],
- "generated_at": "2026-07-24T16:46:15+00:00",
+ "generated_at": "2026-07-24T18:49:54+00:00",
  "repos": [
   "Komali612/java-service",
   "Komali612/dotnet-service"
