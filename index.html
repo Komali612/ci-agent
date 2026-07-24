@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ci-agent · fleet telemetry</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7; --surface: #fcfcfb;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --border: rgba(11,11,11,0.10);
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --good: #0ca30c; --good-text: #006300; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d; --surface: #1a1a19;
+      --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --border: rgba(255,255,255,0.10);
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --good: #0ca30c; --good-text: #0ca30c; --critical: #d03b3b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px; background: var(--page); color: var(--ink);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header { max-width: 1100px; margin: 0 auto 20px; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  header p { color: var(--ink-2); margin: 0; }
+  .wrap { max-width: 1100px; margin: 0 auto; display: grid; gap: 16px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  .tile, .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .tile .label { color: var(--ink-2); font-size: 12px; }
+  .tile .value { font-size: 30px; font-weight: 650; margin-top: 2px; }
+  .tile .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grid-2 { grid-template-columns: 1fr; } }
+  .card h2 { font-size: 14px; margin: 0 0 12px; font-weight: 600; }
+  .card .chart { position: relative; height: 240px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; color: var(--muted); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--grid); }
+  td { padding: 7px 8px; border-bottom: 1px solid var(--grid); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  td:first-child { white-space: nowrap; }
+  .ok    { color: var(--good-text); font-weight: 600; }
+  .fail  { color: var(--critical); font-weight: 600; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: baseline; }
+  a { color: var(--s1); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  footer { max-width: 1100px; margin: 20px auto 0; color: var(--muted); font-size: 12px; }
+  .empty { color: var(--muted); padding: 40px; text-align: center; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ci-agent · fleet telemetry</h1>
+  <p>Every pipeline run across the repos this agent serves. Collected every 6 hours.</p>
+</header>
+
+<div class="wrap">
+  <div class="tiles" id="tiles"></div>
+  <div class="grid-2">
+    <div class="card"><h2>Runs per day, by repo</h2><div class="chart"><canvas id="runsChart"></canvas></div></div>
+    <div class="card"><h2>Phase success rate — where runs die</h2><div class="chart"><canvas id="funnelChart"></canvas></div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card"><h2>Phase duration per run (seconds)</h2><div class="chart"><canvas id="durationChart"></canvas></div></div>
+    <div class="card"><h2>Classification path — LLM vs heuristic fallback</h2><div class="chart"><canvas id="methodChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <h2>Recent runs</h2>
+    <div style="overflow-x:auto"><table id="runsTable">
+      <thead><tr><th>Started</th><th>Repo</th><th>Trigger</th><th>Result</th><th>Phases</th><th>Class.</th><th>Duration</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+</div>
+<footer id="foot"></footer>
+
+<script>
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const PHASES = ["build", "test", "sonar", "push"];
+const PHASE_COLORS = () => [css("--s1"), css("--s2"), css("--s3"), css("--s4")];
+// Haiku pricing per MTok (classification model) - used for the spend tile.
+const PRICE_IN = 1.0, PRICE_OUT = 5.0;
+
+const day = iso => (iso || "").slice(0, 10);
+const fmtDur = s => s == null ? "–" : (s >= 90 ? `${Math.round(s / 60)}m ${Math.round(s % 60)}s` : `${Math.round(s)}s`);
+
+async function main() {
+  let data;
+  try { data = await (await fetch("data.json", { cache: "no-store" })).json(); }
+  catch { data = { records: [], generated_at: null, repos: [] }; }
+  const records = data.records || [];
+  document.getElementById("foot").textContent =
+    `Last collected: ${data.generated_at || "never"} · ${records.length} runs on record · ci-agent telemetry v1`;
+  if (!records.length) {
+    document.querySelector(".wrap").innerHTML = '<div class="card empty">No telemetry collected yet. Trigger a pipeline run, then run the telemetry-collector workflow.</div>';
+    return;
+  }
+
+  Chart.defaults.color = css("--muted");
+  Chart.defaults.borderColor = css("--grid");
+  Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+  Chart.defaults.animation = false;
+  Chart.defaults.plugins.legend.labels.boxWidth = 10;
+  Chart.defaults.plugins.legend.labels.boxHeight = 10;
+
+  const cutoff = Date.now() - 30 * 864e5;
+  const recent = records.filter(r => new Date(r.created_at).getTime() >= cutoff);
+  const withAgent = recent.filter(r => r.agent);
+
+  // ---- stat tiles ----
+  const okRate = recent.length ? Math.round(100 * recent.filter(r => r.conclusion === "success").length / recent.length) : 0;
+  const llmShare = withAgent.length ? Math.round(100 * withAgent.filter(r => r.agent.classification.method === "llm").length / withAgent.length) : 0;
+  const durations = recent.map(r => r.run_duration_seconds).filter(d => d != null);
+  const avgDur = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : null;
+  const images = withAgent.filter(r => r.agent.image_ref).length;
+  const spend = withAgent.reduce((sum, r) => {
+    const c = r.agent.classification;
+    return sum + (c.llm_input_tokens || 0) / 1e6 * PRICE_IN + (c.llm_output_tokens || 0) / 1e6 * PRICE_OUT;
+  }, 0);
+  document.getElementById("tiles").innerHTML = [
+    ["Runs", recent.length, "last 30 days"],
+    ["Success rate", okRate + "%", "run conclusion"],
+    ["Avg duration", fmtDur(avgDur), "whole pipeline"],
+    ["LLM classification", llmShare + "%", "vs heuristic fallback"],
+    ["Images published", images, "pushed to GHCR"],
+    ["LLM spend", "$" + spend.toFixed(4), "classification calls"],
+  ].map(([l, v, s]) => `<div class="tile"><div class="label">${l}</div><div class="value">${v}</div><div class="sub">${s}</div></div>`).join("");
+
+  // ---- runs per day, stacked by repo (color follows the repo, fixed order) ----
+  const repos = data.repos || [...new Set(records.map(r => r.repo))];
+  const days = [...new Set(recent.map(r => day(r.created_at)))].sort();
+  new Chart(document.getElementById("runsChart"), {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: repos.map((repo, i) => ({
+        label: repo.split("/")[1],
+        data: days.map(d => recent.filter(r => r.repo === repo && day(r.created_at) === d).length),
+        backgroundColor: PHASE_COLORS()[i % 4],
+        borderColor: css("--surface"), borderWidth: 1, borderRadius: 4, maxBarThickness: 34,
+      })),
+    },
+    options: { maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { precision: 0 } } } },
+  });
+
+  // ---- phase funnel: success rate per phase (single measure -> single hue) ----
+  const phaseStats = PHASES.map(name => {
+    const results = withAgent.flatMap(r => r.agent.phases.filter(p => p.name === name && p.status !== "skipped"));
+    const ok = results.filter(p => p.status === "success").length;
+    return { name, ran: results.length, rate: results.length ? 100 * ok / results.length : null };
+  });
+  new Chart(document.getElementById("funnelChart"), {
+    type: "bar",
+    data: {
+      labels: phaseStats.map(p => `${p.name} (${p.ran} runs)`),
+      datasets: [{ data: phaseStats.map(p => p.rate), backgroundColor: css("--s1"), borderRadius: 4, maxBarThickness: 34 }],
+    },
+    options: {
+      maintainAspectRatio: false, indexAxis: "y",
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.raw == null ? "no data" : c.raw.toFixed(0) + "% success"}` } } },
+      scales: { x: { min: 0, max: 100, ticks: { callback: v => v + "%" } }, y: { grid: { display: false } } },
+    },
+  });
+
+  // ---- phase duration per run (lines, one per phase) ----
+  const durRuns = withAgent.slice(-40);
+  new Chart(document.getElementById("durationChart"), {
+    type: "line",
+    data: {
+      labels: durRuns.map(r => `${r.repo.split("/")[1]} #${r.run_id}`),
+      datasets: PHASES.map((name, i) => ({
+        label: name,
+        data: durRuns.map(r => { const p = r.agent.phases.find(p => p.name === name); return p && p.status !== "skipped" ? p.duration_seconds : null; }),
+        borderColor: PHASE_COLORS()[i], backgroundColor: PHASE_COLORS()[i],
+        borderWidth: 2, pointRadius: 2, pointHoverRadius: 5, tension: 0.25, spanGaps: true,
+      })),
+    },
+    options: {
+      maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      scales: { x: { ticks: { display: false }, grid: { display: false } }, y: { title: { display: true, text: "seconds" } } },
+    },
+  });
+
+  // ---- classification path per day (LLM = series blue, fallback = neutral gray: degraded state) ----
+  const methodOf = m => days.map(d => withAgent.filter(r => day(r.created_at) === d && r.agent.classification.method === m).length);
+  new Chart(document.getElementById("methodChart"), {
+    type: "bar",
+    data: {
+      labels: days,
+      datasets: [
+        { label: "llm", data: methodOf("llm"), backgroundColor: css("--s1"), borderColor: css("--surface"), borderWidth: 1, borderRadius: 4, maxBarThickness: 34 },
+        { label: "heuristic-fallback", data: methodOf("heuristic-fallback"), backgroundColor: css("--muted"), borderColor: css("--surface"), borderWidth: 1, borderRadius: 4, maxBarThickness: 34 },
+      ],
+    },
+    options: { maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { precision: 0 } } } },
+  });
+
+  // ---- recent runs table ----
+  const rows = [...records].reverse().slice(0, 20).map(r => {
+    const phases = r.agent ? r.agent.phases.map(p => {
+      const color = p.status === "success" ? css("--good") : p.status === "failure" ? css("--critical") : css("--muted");
+      return `<span class="dot" style="background:${color}" title="${p.name}: ${p.status}"></span>`;
+    }).join("") : '<span style="color:var(--muted)">no agent record</span>';
+    const cls = r.agent ? `${r.agent.classification.language} · ${r.agent.classification.method === "llm" ? "llm" : "fallback"}` : "–";
+    const result = r.conclusion === "success" ? '<span class="ok">✓ success</span>' : `<span class="fail">✗ ${r.conclusion}</span>`;
+    return `<tr>
+      <td>${(r.created_at || "").replace("T", " ").slice(0, 16)}</td>
+      <td>${r.repo.split("/")[1]}</td>
+      <td>${r.event}${r.branch ? " · " + r.branch : ""}</td>
+      <td>${result}</td><td>${phases}</td><td>${cls}</td>
+      <td>${fmtDur(r.run_duration_seconds)}</td>
+      <td><a href="${r.run_url}" target="_blank" rel="noopener">run ↗</a></td>
+    </tr>`;
+  });
+  document.querySelector("#runsTable tbody").innerHTML = rows.join("");
+}
+main();
+</script>
+</body>
+</html>
