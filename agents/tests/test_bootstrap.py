@@ -19,12 +19,26 @@ name: CI
 on:
   push:
   pull_request:
+permissions:
+  contents: read
+  packages: write
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pytest
+      - name: Build
+        run: echo build
+      - name: Test
+        run: pytest
+      - name: Sonar
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: ${{ env.SONAR_TOKEN != '' }}
+        run: echo sonar
+      - name: Push image
+        if: github.event_name == 'push'
+        run: echo push
 """
 
 
@@ -58,7 +72,18 @@ def test_validate_accepts_good_workflow():
 def test_validate_handles_on_yaml_footgun():
     # Bare `on:` parses to the boolean True, not "on"; the gate must not flag it.
     wf = "on:\n  push:\njobs:\n  t:\n    runs-on: ubuntu-latest\n"
-    assert _validate(wf) == []
+    assert not any("'on'" in n for n in _validate(wf))
+
+
+def test_validate_flags_missing_phases():
+    # A build+test-only workflow is missing the Sonar and Push phases.
+    wf = (
+        "on: [push]\njobs:\n  ci:\n    runs-on: ubuntu-latest\n    steps:\n"
+        "      - name: Build\n        run: echo build\n"
+        "      - name: Test\n        run: echo test\n"
+    )
+    notes = _validate(wf)
+    assert any("sonar" in n and "push" in n for n in notes)
 
 
 def test_validate_rejects_broken_yaml():

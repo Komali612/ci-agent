@@ -22,23 +22,51 @@ from .contracts import AuthoredWorkflow, LLMWorkflow, RepoClassification, RepoSn
 DEFAULT_MODEL = "claude-opus-4-8"  # authoring is the harder generative task
 WORKFLOW_DIR = ".github/workflows"
 
-SYSTEM_PROMPT = """You are a senior CI engineer. Write a single, complete GitHub Actions
-workflow (YAML) that gives this repository a solid continuous-integration check.
+# The four phases the spec requires; each maps to the keywords we accept in a
+# step/job name to consider that phase "explicitly defined".
+REQUIRED_PHASES: dict[str, tuple[str, ...]] = {
+    "build": ("build",),
+    "test": ("test",),
+    "sonar": ("sonar",),
+    "push": ("push", "ghcr", "docker"),
+}
 
-Requirements:
+SYSTEM_PROMPT = """You are a senior CI engineer. Write a single, complete GitHub Actions
+workflow (YAML) that gives this repository a CI pipeline with FOUR explicitly
+named phases, in this order: Build, Test, Sonar, Push.
+
+General requirements:
 - Trigger on pull_request and push, and also allow workflow_dispatch.
 - Run on ubuntu-latest.
-- Check out the code, set up the correct language toolchain using official
+- Check out the code and set up the correct language toolchain using official
   actions (e.g. actions/setup-python, actions/setup-node, actions/setup-go,
-  actions/setup-java), install dependencies, then build (if applicable) and run
-  the tests. Use the ecosystem and test command you are given.
+  actions/setup-java), using the ecosystem and test command you are given.
 - Pin action versions with a major tag (e.g. @v4).
-- Keep it self-contained: no dependency on secrets, external reusable
-  workflows, or private infrastructure.
+- Add `permissions:` with `contents: read` and `packages: write` (needed for the
+  Push phase).
 - Output valid YAML only, no markdown fences, in the workflow_yaml field.
 
-Base every step on the actual manifests and file layout you are shown. Do not
-add deploy/publish steps; this is a CI check only."""
+The four phases must each appear as clearly named steps whose names contain the
+words Build, Test, Sonar, and Push respectively (they may live in one job):
+
+1. Build  — install dependencies and compile/build the project. For
+   non-compiled languages, run the closest build/install step for the stack.
+2. Test   — run the project's tests using the given test command.
+3. Sonar  — run a SonarCloud scan. Read the token from a SONAR_TOKEN secret via
+   an env var and GUARD the step so it is skipped when the secret is absent, e.g.
+       env:
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+       if: ${{ env.SONAR_TOKEN != '' }}
+4. Push   — build a Docker image and push it to the GitHub Container Registry
+   (ghcr.io/${{ github.repository }}), logging in with ${{ secrets.GITHUB_TOKEN }}.
+   GUARD it to run only on a push to the default branch (not on pull_request),
+   e.g. `if: github.event_name == 'push'`. If the repo has no Dockerfile, add a
+   step that writes a minimal, stack-appropriate Dockerfile before building.
+
+Base every step on the actual manifests and file layout you are shown. All four
+phases must be present and clearly named, even though Sonar and Push are guarded
+and may be skipped until their prerequisites (SONAR_TOKEN, a push to default) are
+in place."""
 
 REPAIR_PROMPT = """The workflow you produced failed validation. Fix it and return the
 corrected complete YAML. Errors:
@@ -154,9 +182,32 @@ def _validate(content: str) -> list[str]:
     jobs = data.get("jobs")
     if not isinstance(jobs, dict) or not jobs:
         notes.append("missing or empty 'jobs' block")
+    else:
+        notes += _phase_notes(jobs)
 
     notes += _actionlint(content)
     return notes
+
+
+def _phase_notes(jobs: dict) -> list[str]:
+    """Ensure all four required phases are explicitly named in the workflow."""
+    labels: list[str] = []
+    for job_id, job in jobs.items():
+        labels.append(str(job_id).lower())
+        if isinstance(job, dict):
+            if job.get("name"):
+                labels.append(str(job["name"]).lower())
+            for step in job.get("steps", []) or []:
+                if isinstance(step, dict) and step.get("name"):
+                    labels.append(str(step["name"]).lower())
+    blob = " ".join(labels)
+    missing = [phase for phase, kws in REQUIRED_PHASES.items() if not any(kw in blob for kw in kws)]
+    if missing:
+        return [
+            "workflow must explicitly define these phases as named steps/jobs: "
+            + ", ".join(missing)
+        ]
+    return []
 
 
 def _actionlint(content: str) -> list[str]:
