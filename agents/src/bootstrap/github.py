@@ -75,7 +75,18 @@ def open_pr(
         "commit", "-m", f"ci: add {classification_line(workflow)} workflow",
     )
 
-    push_url = f"https://x-access-token:{token}@github.com/{owner}/{name}.git"
+    # Decide where to push. If the token can write to the target repo, push the
+    # branch straight there. Otherwise fork the repo into the authenticated
+    # account, push to the fork, and open a cross-fork PR -- which anyone can do
+    # from their own fork, without write access to the target.
+    if _can_push(owner, name, token):
+        push_owner, push_name, head = owner, name, branch
+    else:
+        push_owner, push_name = _ensure_fork(owner, name, token)
+        head = f"{push_owner}:{branch}"
+        print(f"[pr-opener] no write access to {owner}/{name}; forked to {push_owner}/{push_name}")
+
+    push_url = f"https://x-access-token:{token}@github.com/{push_owner}/{push_name}.git"
     try:
         _git(clone_dir, "push", push_url, f"{branch}:{branch}")
     except PROpenError as exc:
@@ -84,10 +95,10 @@ def open_pr(
     body = _pr_body(snapshot, workflow)
     resp = httpx.post(
         f"{API}/repos/{owner}/{name}/pulls",
-        headers={"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"},
+        headers=_headers(token),
         json={
             "title": "ci: add CI workflow (via ci-agent)",
-            "head": branch,
+            "head": head,
             "base": base,
             "body": body,
         },
@@ -97,6 +108,43 @@ def open_pr(
         raise PROpenError(f"GitHub API {resp.status_code} opening PR: {resp.text[:400]}")
     data = resp.json()
     return data["number"], data["html_url"], branch
+
+
+def _headers(token: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json"}
+
+
+def _can_push(owner: str, name: str, token: str) -> bool:
+    """Does the token have push access to owner/name? Uses the repo's permissions."""
+    try:
+        resp = httpx.get(f"{API}/repos/{owner}/{name}", headers=_headers(token), timeout=30)
+        if resp.status_code >= 300:
+            return False
+        return bool(resp.json().get("permissions", {}).get("push"))
+    except httpx.HTTPError:
+        return False
+
+
+def _ensure_fork(owner: str, name: str, token: str) -> tuple[str, str]:
+    """Fork owner/name into the authenticated account and wait until it's ready.
+
+    Returns (fork_owner, fork_name). If the fork already exists, GitHub returns
+    it instead of creating a duplicate.
+    """
+    resp = httpx.post(f"{API}/repos/{owner}/{name}/forks", headers=_headers(token), timeout=60)
+    if resp.status_code >= 300:
+        raise PROpenError(f"fork of {owner}/{name} failed: {resp.status_code} {resp.text[:300]}")
+    fork = resp.json()
+    fork_owner = fork["owner"]["login"]
+    fork_name = fork["name"]
+
+    # Forking is asynchronous; poll until the fork repo responds before pushing.
+    for _ in range(30):
+        check = httpx.get(f"{API}/repos/{fork_owner}/{fork_name}", headers=_headers(token), timeout=30)
+        if check.status_code == 200:
+            return fork_owner, fork_name
+        time.sleep(2)
+    raise PROpenError(f"fork {fork_owner}/{fork_name} did not become ready in time")
 
 
 def classification_line(workflow: AuthoredWorkflow) -> str:
