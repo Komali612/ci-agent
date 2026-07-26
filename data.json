@@ -852,9 +852,100 @@
    "run_duration_seconds": 201.0,
    "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30125459206",
    "agent": null
+  },
+  {
+   "key": "Komali612/java-service#30187269105#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30187269105,
+   "run_attempt": 1,
+   "workflow": "CI",
+   "event": "push",
+   "branch": "ci-agent/add-ci-1785038824",
+   "sha": "7135a558a929cb17003f5a36200a835575bc868c",
+   "conclusion": "success",
+   "created_at": "2026-07-26T04:07:07Z",
+   "run_duration_seconds": 35.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30187269105",
+   "agent": null
+  },
+  {
+   "key": "Komali612/java-service#30187269847#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30187269847,
+   "run_attempt": 1,
+   "workflow": "CI",
+   "event": "pull_request",
+   "branch": "ci-agent/add-ci-1785038824",
+   "sha": "7135a558a929cb17003f5a36200a835575bc868c",
+   "conclusion": "success",
+   "created_at": "2026-07-26T04:07:09Z",
+   "run_duration_seconds": 32.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30187269847",
+   "agent": null
+  },
+  {
+   "key": "Komali612/java-service#30187269956#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30187269956,
+   "run_attempt": 1,
+   "workflow": "ci",
+   "event": "pull_request",
+   "branch": "ci-agent/add-ci-1785038824",
+   "sha": "7135a558a929cb17003f5a36200a835575bc868c",
+   "conclusion": "success",
+   "created_at": "2026-07-26T04:07:09Z",
+   "run_duration_seconds": 112.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30187269956",
+   "agent": {
+    "schema": 1,
+    "ts": "2026-07-26T04:08:55+00:00",
+    "repo": "Komali612/java-service",
+    "run_id": "30187269956",
+    "run_attempt": "1",
+    "event": "pull_request",
+    "pr": "2",
+    "sha": "7135a558a929cb17003f5a36200a835575bc868c",
+    "agent_ref": "main",
+    "conclusion": "success",
+    "classification": {
+     "language": "java",
+     "build_tool": "maven",
+     "confidence": 0.99,
+     "method": "llm",
+     "llm_input_tokens": 1397,
+     "llm_output_tokens": 135
+    },
+    "phases": [
+     {
+      "name": "build",
+      "status": "success",
+      "duration_seconds": 17.3,
+      "exit_code": 0
+     },
+     {
+      "name": "test",
+      "status": "success",
+      "duration_seconds": 10.1,
+      "exit_code": 0
+     },
+     {
+      "name": "sonar",
+      "status": "success",
+      "duration_seconds": 41.0,
+      "exit_code": 0
+     },
+     {
+      "name": "push",
+      "status": "success",
+      "duration_seconds": 13.2,
+      "exit_code": 0
+     }
+    ],
+    "image_ref": "ghcr.io/komali612/java-service:pr-2-7135a55"
+   }
   }
  ],
- "generated_at": "2026-07-26T03:52:52+00:00",
+ "generated_at": "2026-07-26T08:38:27+00:00",
  "repos": [
   "Komali612/java-service",
   "Komali612/dotnet-service"
