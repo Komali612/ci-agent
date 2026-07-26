@@ -11,9 +11,18 @@ dependencies = [
     "anthropic>=0.60",
     "httpx>=0.27",
     "pydantic>=2.7",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+# The HTTP service shell; not needed by the in-Actions pipeline, only by the
+# bootstrapping service. Install with:  pip install -e ./agents[service]
+service = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
 ]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-packages = ["classification_agent", "ci_agent", "ci_agent.phases"]
+packages = ["classification_agent", "ci_agent", "ci_agent.phases", "bootstrap"]
 py-modules = ["contracts", "report", "telemetry"]
