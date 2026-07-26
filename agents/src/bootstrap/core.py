@@ -14,11 +14,13 @@ from . import author as author_mod
 from . import classify as classify_mod
 from . import github as github_mod
 from . import ingest as ingest_mod
+from .config import load_dotenv
 from .contracts import BootstrapResult
 
 
 def bootstrap(repo_url: str, *, open_pr: bool = True, token: str | None = None) -> BootstrapResult:
     """Run the full bootstrapping flow for a single repository."""
+    load_dotenv()  # pick up ANTHROPIC_API_KEY / GH_TOKEN from a .env if present
     token = token or github_mod.resolve_token()
 
     with tempfile.TemporaryDirectory(prefix="ci-agent-bootstrap-") as td:

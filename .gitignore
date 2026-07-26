@@ -9,3 +9,5 @@ build/
 .ci-agent-logs/
 classification.json
 telemetry/site/data.json
+.env
+.env.*
