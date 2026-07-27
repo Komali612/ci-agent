@@ -1048,9 +1048,24 @@
    "run_duration_seconds": 75.0,
    "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30234051946",
    "agent": null
+  },
+  {
+   "key": "Komali612/dotnet-service#30235975668#1",
+   "repo": "Komali612/dotnet-service",
+   "run_id": 30235975668,
+   "run_attempt": 1,
+   "workflow": "CI",
+   "event": "pull_request",
+   "branch": "ci-bootstrap/add-ci-1785124868",
+   "sha": "1d73551d5cdcfeecef0939bd6f285718787edd8f",
+   "conclusion": "success",
+   "created_at": "2026-07-27T04:01:13Z",
+   "run_duration_seconds": 77.0,
+   "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30235975668",
+   "agent": null
   }
  ],
- "generated_at": "2026-07-27T03:59:22+00:00",
+ "generated_at": "2026-07-27T10:07:02+00:00",
  "repos": [
   "Komali612/java-service",
   "Komali612/dotnet-service"
