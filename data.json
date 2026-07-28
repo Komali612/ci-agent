@@ -1468,9 +1468,54 @@
    "run_duration_seconds": 93.0,
    "run_url": "https://github.com/Komali612/dotnet-service/actions/runs/30297246427",
    "agent": null
+  },
+  {
+   "key": "Komali612/java-service#30328249523#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30328249523,
+   "run_attempt": 1,
+   "workflow": "CI",
+   "event": "push",
+   "branch": "main",
+   "sha": "c9fd17558df58bbd76be31866e7b9ae509696027",
+   "conclusion": "failure",
+   "created_at": "2026-07-28T04:15:37Z",
+   "run_duration_seconds": 66.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30328249523",
+   "agent": null
+  },
+  {
+   "key": "Komali612/java-service#30328290171#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30328290171,
+   "run_attempt": 1,
+   "workflow": "CI",
+   "event": "pull_request",
+   "branch": "demo/security-vuln",
+   "sha": "cbc07b963d31a5d10c17a70d525ef4c869728013",
+   "conclusion": "failure",
+   "created_at": "2026-07-28T04:16:28Z",
+   "run_duration_seconds": 75.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30328290171",
+   "agent": null
+  },
+  {
+   "key": "Komali612/java-service#30328405372#1",
+   "repo": "Komali612/java-service",
+   "run_id": 30328405372,
+   "run_attempt": 1,
+   "workflow": "CI",
+   "event": "pull_request",
+   "branch": "demo/clean-change",
+   "sha": "f31c7f87b7873aa71126f19627b1475192c8a18e",
+   "conclusion": "success",
+   "created_at": "2026-07-28T04:19:00Z",
+   "run_duration_seconds": 69.0,
+   "run_url": "https://github.com/Komali612/java-service/actions/runs/30328405372",
+   "agent": null
   }
  ],
- "generated_at": "2026-07-28T03:31:55+00:00",
+ "generated_at": "2026-07-28T08:49:19+00:00",
  "repos": [
   "Komali612/java-service",
   "Komali612/dotnet-service"
